@@ -323,6 +323,7 @@ class WikiPage:
                 and not link.startswith("/wiki/File")
                 and not link.startswith("/wiki/Wayback_Machine")
                 and not link.startswith("/wiki/Template")
+                and not link.startswith("/wiki/Portal")
             ):
                 article_to_article_links.append(link)
 

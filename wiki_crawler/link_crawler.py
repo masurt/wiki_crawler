@@ -370,7 +370,7 @@ class WikiPage:
         return info
 
     def __repr__(self):
-        repr = f"RootWikiPage Object:\n__dict__: {self.__dict__}"
+        repr = f"WikiPage {self.url}"
         return repr
 
     def __str__(self):

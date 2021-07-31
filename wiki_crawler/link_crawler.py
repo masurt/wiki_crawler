@@ -164,10 +164,7 @@ class WikiPage:
         self.url: str = url
         self.validate_url()
 
-        self.soup = self.get_soup()
-        self.article_content = self.get_article_content()
-        self.root_url = self.get_root_url()
-        self.language_code = self.get_language_code()
+        self._soup = None
 
         self.language_article_lengths_dataframe: Optional[pd.DataFrame] = None
         self.other_language_pages: List[WikiPage] = []
@@ -184,17 +181,26 @@ class WikiPage:
                 f"Malformatted url: make sure it starts with {self.start_of_url_string}"
             )
 
+    @property
+    def soup(self):
+        if self._soup:
+            return self._soup
+        self._soup = self.get_soup()
+        return self._soup
+
     def get_soup(self):
         html = urllib.request.urlopen(self.url).read()
         return BeautifulSoup(html, "html.parser")
 
-    def get_article_content(self):
+    @property
+    def article_content(self):
         content = self.soup.find("div", {"id": "content"})
         if not content:
             content = self.soup.find("main", {"id": "content"})
         return content
 
-    def get_root_url(self):
+    @property
+    def root_url(self):
         end_of_root_index = self.url.find(self.end_of_root_url_string)
         if end_of_root_index != -1:
             root_url = self.url[: end_of_root_index + len(self.end_of_root_url_string)]
@@ -202,12 +208,12 @@ class WikiPage:
         else:
             raise Exception(f"Root url of url {self.url} could not be determined.")
 
-    def get_language_code(self):
-        pre_language_code_string = "//"
-        index_pre_language_code_string = self.root_url.find(pre_language_code_string)
+    @property
+    def language_code(self):
+        index_pre_language_code_string = self.root_url.find(self.start_of_url_string)
         language_code = self.root_url[
             index_pre_language_code_string
-            + len(pre_language_code_string) : -len(self.end_of_root_url_string)
+            + len(self.start_of_url_string) : -len(self.end_of_root_url_string)
         ]
         return language_code
 

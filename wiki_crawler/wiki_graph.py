@@ -6,6 +6,7 @@ import pandas as pd
 
 from wiki_page import WikiPage
 
+
 def tag_visible(element):
     if element.parent.name in [
         "style",

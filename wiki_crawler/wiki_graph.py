@@ -4,7 +4,9 @@ from typing import Set, Union, Optional
 import networkx as nx
 import pandas as pd
 
-from wiki_page import WikiPage
+import sys
+print(sys.path)
+from .wiki_page import WikiPage
 
 
 def tag_visible(element):
@@ -62,7 +64,7 @@ class WikiGraph:
             link: list(df.loc[link][df.loc[link].isna()].index) for link in df.index
         }
 
-        df_rel = df.div(df[self.language], axis="index")
+        df_rel = df.div(df[self.language_code], axis="index")
         print(df_rel)
         short_languages = {
             link: list(df_rel.loc[link][df_rel.loc[link] < 0.5].index)
@@ -92,7 +94,7 @@ class WikiGraph:
         graph_links_language_article_lengths = pd.DataFrame()
 
         for _, top_link in top_links:
-            top_page = WikiPage(top_link, self.language)
+            top_page = WikiPage(top_link)
             language_article_lengths = (
                 top_page.build_language_article_lengths_dataframe(
                     only_use_these_languages=only_use_languages,
@@ -110,7 +112,7 @@ class WikiGraph:
         }
         return self.language_article_lengths_dict
 
-    def build_graph(self, depth) -> None:
+    def build_graph(self, depth):
         page_graph = nx.DiGraph()
         page_graph.add_node(self.base_page)
 

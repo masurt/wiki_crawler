@@ -43,9 +43,7 @@ class WikiPage:
             error_messages += f"Malformatted url: make sure it contains {self.end_of_root_url_string}\n"
 
         if error_messages != "":
-            raise ValueError(
-                f"Malformatted url: make sure it starts with {self.start_of_url_string}"
-            )
+            raise ValueError(error_messages)
 
     @property
     def soup(self):

@@ -1,3 +1,5 @@
+import datetime
+import time
 import zlib
 from bs4 import BeautifulSoup
 from bs4.element import Comment
@@ -26,6 +28,8 @@ class WikiPage:
     start_of_url_string = "https://"
     end_of_root_url_string = ".wikipedia.org"
 
+    wait_between_requests = datetime.timedelta(seconds=1)
+
     def __init__(self, url):
         self.url: str = url
         self.validate_url()
@@ -34,6 +38,8 @@ class WikiPage:
 
         self.language_article_lengths_dataframe: Optional[pd.DataFrame] = None
         self.other_language_pages: List[WikiPage] = []
+
+        self.last_request = datetime.datetime.now()
 
     def validate_url(self):
         error_messages = ""
@@ -53,8 +59,19 @@ class WikiPage:
         return self._soup
 
     def get_soup(self):
+        self.limit_requests_rate()
         html = urllib.request.urlopen(self.url).read()
         return BeautifulSoup(html, "html.parser")
+
+    def limit_requests_rate(self):
+        now = datetime.datetime.now()
+        since_last_request = now - self.last_request
+        if since_last_request < self.wait_between_requests:
+            wait_seconds = (
+                self.wait_between_requests - since_last_request
+            ).microseconds / 1e6
+            time.sleep(wait_seconds)
+        self.last_request = datetime.datetime.now()
 
     @property
     def article_content(self):

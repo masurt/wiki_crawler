@@ -54,7 +54,7 @@ class WikiGraph:
 
     def get_lengths_languages_dataframe(self, only_use_these_languages=None):
         df = pd.DataFrame()
-        for page, in_degree in self.graph.in_degree():
+        for page in self.graph.nodes:
             languages_df = page.build_language_article_lengths_dataframe(
                 only_use_these_languages=only_use_these_languages
             )

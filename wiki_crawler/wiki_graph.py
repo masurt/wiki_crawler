@@ -54,7 +54,11 @@ class WikiGraph:
 
     def get_lengths_languages_dataframe(self, only_use_these_languages=None):
         df = pd.DataFrame()
-        for page in self.graph.nodes:
+
+        n_pages = len(self.graph.nodes)
+        for i_page, page in enumerate(self.graph.nodes):
+            if i_page % 10 == 0:
+                print(f"At page {i_page+1}/{n_pages}")
             languages_df = page.build_language_article_lengths_dataframe(
                 only_use_these_languages=only_use_these_languages
             )

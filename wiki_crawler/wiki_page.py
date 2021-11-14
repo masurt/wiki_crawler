@@ -101,9 +101,10 @@ class WikiPage:
         return language_code
 
     def build_language_article_lengths_dataframe(
-        self, only_use_these_languages: [str] = None, compressed_length=True
+        self, compressed_length=True, only_use_these_languages=("en", "de", "fr")
     ):
         language_urls: [str] = self.get_other_language_urls()
+
         if only_use_these_languages:
             language_urls = list(
                 filter(
@@ -113,21 +114,11 @@ class WikiPage:
                 )
             )
 
-        language_pages = []
+        language_urls.append(self.url)
+
+        language_article_lengths_df = pd.DataFrame(columns=only_use_these_languages)
         for language_url in language_urls:
-            for already_loaded_page in self.other_language_pages:
-                if already_loaded_page.url == language_url:
-                    language_pages.append(already_loaded_page)
-                    break
-            else:  # no break -> language page not found in already loaded other language pages
-                page = WikiPage(language_url)
-                language_pages.append(page)
-                self.other_language_pages.append(page)
-
-        language_pages.append(self)
-
-        language_article_lengths_df = pd.DataFrame()
-        for page in language_pages:
+            page = WikiPage(language_url)
             language_code = page.language_code
 
             if compressed_length:
@@ -188,6 +179,7 @@ class WikiPage:
                 and not link.startswith("/wiki/Wayback_Machine")
                 and not link.startswith("/wiki/Template")
                 and not link.startswith("/wiki/Portal")
+                and not link.startswith("/wiki/Talk")
             ):
                 article_to_article_links.append(link)
 

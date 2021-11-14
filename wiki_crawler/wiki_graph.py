@@ -4,9 +4,6 @@ from typing import Set, Union, Optional
 import networkx as nx
 import pandas as pd
 
-import sys
-
-print(sys.path)
 from .wiki_page import WikiPage
 
 
@@ -40,6 +37,31 @@ class WikiGraph:
                 "Link graph not build. "
                 "First build it to the required depth with WikiGraph.build_link_graph()"
             )
+
+    def get_degrees_dataframe(self):
+        columns = ["in_degree"]
+        df = pd.DataFrame(columns=columns)
+
+        for page, in_degree in self.graph.in_degree():
+            df.loc[page.url] = pd.Series(
+                {
+                    "in_degree": in_degree,
+                }
+            )
+
+        df.index.name = "url"
+        return df
+
+    def get_lengths_languages_dataframe(self, only_use_these_languages=None):
+        df = pd.DataFrame()
+        for page, in_degree in self.graph.in_degree():
+            languages_df = page.build_language_article_lengths_dataframe(
+                only_use_these_languages=only_use_these_languages
+            )
+            df.loc[page.url, languages_df.columns] = list(languages_df.values.flatten())
+
+        df.index.name = "url"
+        return df
 
     def build_graph(self, depth):
         page_graph = nx.DiGraph()
